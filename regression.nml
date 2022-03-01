@@ -1,0 +1,96 @@
+
+
+;; step 5 LITERAL
+(check-principal-type 3 int)
+(check-principal-type #t bool)
+(check-principal-type 'hello sym)
+
+
+;; step 6 IFX
+(check-principal-type (if #t 3 6) int)
+(check-principal-type (if #t #f #f) bool)
+
+(check-type-error (if 4 3 6))
+(check-type-error (if #f 3 'a))
+
+
+;; step 12 LAMBDA
+(check-principal-type (lambda (a b) (+ a b))   (int  int  -> int))
+(check-principal-type (lambda (a b) (< a b))   (int  int  -> bool))
+
+(check-principal-type (lambda (m n) (+ m n))   (int  int  -> int))
+(check-principal-type (lambda (m n) (= m n))   (forall ['a] ('a 'a -> bool)))
+; (check-principal-type (lambda (a b) (and a b)) (bool bool -> bool))
+
+(check-type-error (lambda (a b) (+ (if a b 3) a)))
+(check-type-error (lambda (a) (if a (lambda (a) (+ (lambda (a) a) a)) a)))
+(check-type-error (lambda (a) (lambda (a) (+ (lambda (a) a) a))))
+
+
+;; step 13
+(check-principal-type (begin ) unit)
+(check-principal-type (begin (lambda (a b) (+ a b))) (int  int  -> int))
+(check-principal-type (begin (if #t #t #t) (if #f 2021 2022)) int)
+
+(check-type-error (begin (val eee 15) (if 4 13 21)))
+
+
+;; step 11
+(check-principal-type (let ([add_1 (lambda (y) (let ([add (lambda (x) (+ x 1))]) (add (add y))))])
+						   add_1) (int -> int))
+
+(check-principal-type (lambda () (let () 'something)) ( -> sym))
+
+(check-type-error (lambda (y) (let ([e_break (lambda (x) (if x (+ x 1) x))])
+                                   (e_break (e_break y)))))
+
+(check-type-error (let ([v1 #t] [v2 4]) (if v2 v1 v2)))
+
+
+
+
+
+;; step 15
+(check-principal-type (letrec ([add1 (lambda (x) (+ x 1))]
+                               [add4 (lambda (z) (add2 (add2 z)))]
+                               [add2 (lambda (y) (add1 (add1 y)))]) (add4 3)) int)
+
+(check-principal-type (letrec ([add1 (lambda (x) (sub1 (+ x 2))) ]
+                               [sub1 (lambda (y) (- (add1 y) 2))   ])
+                              (add1 4))
+                      int)
+
+(check-type-error (letrec ([add1 (lambda (x) (+ x 1))]
+                           [bad_exp 5]) (add1 45)))
+(check-type-error (letrec ([add1 (lambda (x) (+ x 1))]
+                           [sub1 (lambda (y) (- y 1))]) (add1 'bad)))
+
+
+;; step 18
+(check-principal-type '() (forall ['a] (list 'a)))
+(check-principal-type '(135 135 135) (list int))
+
+(check-type-error '(a #f))
+(check-type-error (cons 134 'bad))
+
+
+
+
+;; Exercise 21 - pair primitives
+(check-principal-type (pair #t 13) (pair bool int))
+(check-principal-type (pair #t '(1 2 3)) (pair bool (list int)))
+
+(check-principal-type (fst (pair #t 13)) bool)
+(check-type-error (fst '() ))
+(check-type-error (fst 36 ))
+
+(check-principal-type (snd (pair #t 13)) int)
+(check-type-error (snd '() ))
+(check-type-error (snd 15 ))
+
+
+
+
+
+
+

@@ -1,0 +1,17 @@
+
+;; Type Error 1
+(check-type-error (if 'hi 1 23))
+
+;; Type Error 2
+(check-type-error (let [(ryan 'twenty-one) (george 2022)] (- george ryan)))
+
+;; Type Evaluation
+(check-principal-type (letrec ([add1 (lambda (x) (+ x 1))]
+                               [add4 (lambda (z) (add2 (add2 z)))]
+                               [add2 (lambda (y) (add1 (add1 y)))]
+                               [sqr  (lambda (n) (* n n))]
+                               [uhoh (lambda () (letrec ([equ  (lambda (a b) (begin (if (if (= a b) #t #f) 2021 2022)))]
+                                                         [year (lambda () (equ 'twenty-one 'twenty-two))])
+                                                         (year)))])
+                               (sqr (add4 (uhoh))))
+                        int)
